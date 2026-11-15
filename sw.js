@@ -1,7 +1,7 @@
 /* MY DAY service worker: the app opens offline after the first visit.
    Same-origin files and Google Fonts are served from cache and refreshed in the background,
    so a new version shows up the second time the app is opened. */
-const CACHE = 'myday-v1';
+const CACHE = 'myday-v2';
 const CORE = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'maskable-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

@@ -674,7 +674,7 @@ function viewSet(){
   const c=S.cfg;
   const stat={cloud:'روی حساب تو ذخیره می‌شود و بین دستگاه‌ها همگام است.',local:'فقط روی همین دستگاه ذخیره می‌شود.',none:'ذخیره‌سازی در این نمایشگر در دسترس نیست و داده‌ها فقط تا بستن صفحه می‌مانند. از «کپی پشتیبان» استفاده کن.',wait:'در حال ذخیره‌سازی…',bad:'ذخیره‌ی ابری ناموفق بود؛ دوباره تلاش می‌شود.',slow:'اتصال به ذخیره‌سازی برقرار نشد؛ داده‌ی این دستگاه نمایش داده می‌شود.'}[mode];
   return `
-  <div class="sec"><h2>ذخیره‌سازی</h2></div><section class="card"><p style="margin:0">${stat}</p><p class="hint" style="margin:6px 0 0">تاریخ‌ها به شمسی ذخیره می‌شوند.</p></section>
+  ${viewDisplay()}<div class="sec"><h2>ذخیره‌سازی</h2></div><section class="card"><p style="margin:0">${stat}</p><p class="hint" style="margin:6px 0 0">تاریخ‌ها به شمسی ذخیره می‌شوند.</p></section>
   <div class="sec"><h2>قدم‌های صبحگاهی</h2><small>نام و شکلک را ویرایش کن</small></div>
   <section class="card">${c.steps.map((s,i)=>`<div class="sr"><input class="in em" data-c="stepE" data-id="${s.id}" value="${esc(s.e)}" aria-label="شکلک"><input class="in" data-c="stepT" data-id="${s.id}" value="${esc(s.t)}" aria-label="عنوان قدم"><button class="ib" data-a="smove" data-w="steps" data-id="${s.id}" data-n="-1" aria-label="بالا" ${i?'':'disabled'}>${ic('chd',18).replace('<svg','<svg style="transform:rotate(180deg)"')}</button><button class="ib" data-a="sdel" data-w="steps" data-id="${s.id}" data-k="1" aria-label="حذف">${ic('trash',18)}</button></div>`).join('')}
     <div class="addrow"><button class="btn ghost" data-a="sadd" data-w="steps">${ic('plus',18)} قدم تازه</button></div></section>
@@ -788,7 +788,9 @@ const A={
     render();toast('همه‌ی داده‌ها حذف شد');
     if(dbc){for(const id of ids){try{await dbc.doc(id).delete();delete last[id];}catch(e){}}}
   },
-  sclose(){closeSheet();}
+  sclose(){closeSheet();},
+  fspref(){fsPref=!fsPref;try{localStorage.setItem(LS+'fs',fsPref?'1':'0');}catch(e){}render();},
+  fsnow(){if(document.fullscreenElement)fsOff();else fsOn();}
 };
 function gmod(id,fn){const g=G().find(x=>x.id===id);if(!g)return;fn(g);g.sample=false;saveGoals();render();}
 const CH={
@@ -858,6 +860,23 @@ function saveGoalSheet(){
   else G().push({id:uid(),t,y,sample:false,metric,effort,actions:[],efforts:[],habits:effort?habits:[]});
   GY=y;saveGoals();closeSheet();render();
 }
+
+/* ---------- full screen: hides the browser bars when the app runs from a browser shortcut ---------- */
+const isStandalone=()=>{try{return !!((window.matchMedia&&(matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches))||navigator.standalone===true);}catch(e){return false;}};
+const canFS=!!(document.documentElement.requestFullscreen&&document.fullscreenEnabled)&&!isStandalone();
+let fsPref=true,fsAuto=true;
+try{fsPref=localStorage.getItem(LS+'fs')!=='0';}catch(e){}
+function fsOn(){try{const p=document.documentElement.requestFullscreen({navigationUI:'hide'});if(p&&p.catch)p.catch(function(){});}catch(e){}}
+function fsOff(){try{if(document.fullscreenElement)document.exitFullscreen();}catch(e){}}
+function viewDisplay(){
+  if(!canFS)return '';
+  const inFS=!!document.fullscreenElement;
+  return `<div class="sec"><h2>نمایش</h2><small>پنهان کردن نوار مرورگر</small></div>
+  <section class="card"><p class="hint" style="margin:0 0 10px">وقتی برنامه را از میان‌بر Chrome باز می‌کنی، تمام‌صفحه نوار آدرس را پنهان می‌کند. برای خروج، از بالای صفحه به پایین بکش.</p>
+    <div class="chips"><button class="chip ${fsPref?'on':''}" data-a="fspref">ورود خودکار با اولین لمس</button><button class="btn ghost sm" data-a="fsnow">${inFS?'خروج از تمام‌صفحه':'تمام‌صفحه'}</button></div></section>`;
+}
+document.addEventListener('click',()=>{if(!fsAuto)return;fsAuto=false;if(canFS&&fsPref&&!document.fullscreenElement)fsOn();},true);
+document.addEventListener('fullscreenchange',()=>{if(tab==='set'&&!sheetOpen())render();});
 
 /* ---------- events ---------- */
 const armed=new WeakMap();
