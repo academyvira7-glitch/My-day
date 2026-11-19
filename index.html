@@ -6,12 +6,12 @@
 <meta name="theme-color" content="#2A7D79">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="روز من">
+<meta name="apple-mobile-web-app-title" content="My Vision">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
-<title>MY DAY | روز من</title>
+<title>My Vision</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap">
 <style>
@@ -289,7 +289,7 @@ html.locked main,html.locked header,html.locked nav,html.locked .sheet{visibilit
 <nav class="tabs" id="tabs"><div class="w"></div></nav>
 <div class="sheet" id="sheet" hidden><div class="bk" data-a="sclose"></div><div class="pn" id="pn"></div></div>
 <div class="toast" id="toast" hidden></div>
-<div id="lock" hidden><div class="lk"><img id="lk-av" alt=""><h2>روز من</h2><p>برنامه قفل است</p>
+<div id="lock" hidden><div class="lk"><img id="lk-av" alt=""><h2>My Vision</h2><p>برنامه قفل است</p>
   <button class="btn" id="lk-b" data-a="lkbio"></button>
   <button class="btn ghost" data-a="lkshow">ورود با رمز پشتیبان</button>
   <div id="lk-pn" hidden><input id="lk-pin" class="in" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="رمز پشتیبان" style="margin-top:10px;text-align:center"><button class="btn" data-a="lkpin">ورود</button></div>
@@ -1031,7 +1031,7 @@ const A={
     if(!/^\d{4,8}$/.test(p1)){toast('رمز باید ۴ تا ۸ رقم باشد');return;}
     if(p1!==p2){toast('دو رمز یکی نیست');return;}
     let cred=null;
-    try{cred=await navigator.credentials.create({publicKey:{challenge:rnd(32),rp:{name:'روز من'},user:{id:rnd(16),name:'my-day',displayName:'روز من'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'discouraged'},timeout:60000,attestation:'none'}});}catch(e){cred=null;}
+    try{cred=await navigator.credentials.create({publicKey:{challenge:rnd(32),rp:{name:'My Vision'},user:{id:rnd(16),name:'my-day',displayName:'My Vision'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'discouraged'},timeout:60000,attestation:'none'}});}catch(e){cred=null;}
     if(!cred){toast('ثبت اثر انگشت انجام نشد؛ دوباره تلاش کن');return;}
     const salt=rnd(16);
     try{LK={id:B64.enc(cred.rawId),salt:B64.enc(salt),h:await pinHash(p1,salt)};}catch(e){LK=null;toast('ساخت رمز ناموفق بود');return;}
