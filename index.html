@@ -170,6 +170,12 @@ textarea.in{min-height:48px}
 .wtr .bc i{display:block;width:100%;background:var(--pri);border-radius:7px 7px 0 0}
 .wtr em{font-style:normal;font-size:9px;white-space:nowrap}
 .wtr .cn{font-size:12px;font-weight:800;color:var(--ink);border-top:1px solid var(--line);padding-top:3px;width:100%;text-align:center}
+.cmp{display:grid;gap:7px;background:var(--soft);border-radius:14px;padding:10px 12px}
+.cmpr{display:grid;grid-template-columns:1fr 64px 64px;gap:8px;align-items:center;font-size:13px}
+.cmpr b{text-align:center;font-weight:700}
+.cmpr.h{color:var(--mut);font-size:12px}
+.bkl{font-size:12px;color:var(--mut);margin:10px 2px 0}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0,0,0,0);pointer-events:none}
 .dg{margin-top:12px;display:grid;gap:8px}
 .dgr{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.7}
 .dgr b{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;color:#fff;background:var(--mut)}
@@ -239,7 +245,7 @@ textarea.in{min-height:48px}
 .sheet .bk{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;background:rgba(5,15,18,.55)}
 .sheet .pn{position:relative;width:100%;max-width:560px;margin:0 auto;background:var(--card);border-radius:24px 24px 0 0;padding:16px max(16px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px));max-height:90%;overflow:auto;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
 .pn h3{margin:0 0 4px;font-size:17px;font-weight:800}
-.pn .ft{display:flex;gap:10px;margin-top:18px}
+.pn .ft{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
 .pn .ft .btn:first-child{flex:1}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:70;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:14px;font-size:13px;max-width:88%;text-align:center}
 .toast[hidden]{display:none}
@@ -618,7 +624,7 @@ const IC={
  home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
  flag:'<path d="M4 22V4"/><path d="M4 4h13l-2 4 2 4H4"/>',chart:'<path d="M18 20V10M12 20V4M6 20v-6"/>',
  sliders:'<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
- plus:'<path d="M12 5v14M5 12h14"/>',wk:'<rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M8 2.5v4M16 2.5v4M3 10h18M8 18h8"/>',xc:'<circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/>',undo:'<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/>',check:'<path d="M20 6L9 17l-5-5"/>',trash:'<path d="M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',dl:'<path d="M12 4v11M7.5 11l4.5 4.5 4.5-4.5M5 20h14"/>',up:'<path d="M12 16V5M7.5 9L12 4.5 16.5 9M5 20h14"/>',sh:'<circle cx="6" cy="12" r="2.3"/><circle cx="17" cy="6" r="2.3"/><circle cx="17" cy="18" r="2.3"/><path d="M8.1 11l6.8-4M8.1 13l6.8 4"/>',wk:'<rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M8 2.5v4M16 2.5v4M3 10h18M8 18h8"/>',xc:'<circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/>',undo:'<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/>',check:'<path d="M20 6L9 17l-5-5"/>',trash:'<path d="M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>',
  edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',chl:'<path d="M15 18l-6-6 6-6"/>',chr:'<path d="M9 18l6-6-6-6"/>',chd:'<path d="M6 9l6 6 6-6"/>',
  flame:'<path d="M12 2c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9Z"/>',trophy:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0Z"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3"/>',
  fwd:'<path d="M19 12H5M12 19l-7-7 7-7"/>',target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
@@ -1155,6 +1161,44 @@ function bDaily(){
   <div class="lb">قالب روز (${fa(c.tpl.length)} بلوک)</div>
   <p class="hint" style="margin:0 0 10px">از بخش «زمان‌بندی روز»، بلوک‌های یک روز را به‌عنوان قالب ذخیره می‌کنی. اینجا قالب پیشنهادی اولیه را برمی‌گردانی.</p><button class="btn ghost" data-a="tpldef" data-k="1">بازگردانی قالب پیشنهادی</button>`;
 }
+let BKP=null;
+const bkPhoto=()=>{try{return {av:localStorage.getItem(LS+'avatar')||'',hb:localStorage.getItem(LS+'herobg')||''};}catch(e){return {av:'',hb:''};}};
+function bkBuild(){return {app:'my-vision',v:2,at:new Date().toISOString(),d:TK,cfg:S.cfg,goals:G(),days:S.days,rem:S.rem,wk:S.wk,photo:bkPhoto()};}
+const bkName=ext=>{const n=new Date();return 'my-vision-'+TK+'-'+String(n.getHours()).padStart(2,'0')+String(n.getMinutes()).padStart(2,'0')+'.'+ext;};
+const bkLast=()=>{try{return localStorage.getItem(LS+'lastbk')||'';}catch(e){return '';}};
+function bkMark(){try{localStorage.setItem(LS+'lastbk',TK);}catch(e){}const e=$('#bk-last');if(e)e.textContent='آخرین فایل پشتیبان: '+dateLabel(TK);}
+function bkCounts(o){return {days:Object.keys(o.days||{}).length,goals:Array.isArray(o.goals)?o.goals.length:0,rem:Array.isArray(o.rem)?o.rem.length:0,wk:Object.keys(o.wk||{}).length,photo:!!(o.photo&&(o.photo.av||o.photo.hb))};}
+function bkParse(txt){const o=JSON.parse(txt);if(!o||typeof o!=='object'||Array.isArray(o)||!o.days||typeof o.days!=='object'||Array.isArray(o.days))throw new Error('bad');return o;}
+function applyBackup(o){
+  const old=Object.keys(S.days);
+  if(o.cfg)S.cfg=normCfg(o.cfg);
+  if(o.goals)S.goals=normGoals(o.goals);
+  if(o.rem)S.rem=normRem(o.rem);
+  if(o.wk)S.wk=normWeeks(o.wk);
+  const nd={};Object.keys(o.days).forEach(k=>{if(WKEY.test(k))nd[k]=normDay(o.days[k]);});
+  S.days=nd;
+  const p=o.photo;
+  if(p&&typeof p==='object'){
+    const okp=v=>typeof v==='string'&&v.length<4e6&&/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(v);
+    try{if(okp(p.av))localStorage.setItem(LS+'avatar',p.av);if(okp(p.hb))localStorage.setItem(LS+'herobg',p.hb);}catch(e){}
+  }
+  Object.keys(nd).forEach(k=>persist('d-'+k));
+  old.filter(k=>!(k in nd)).forEach(k=>{const id='d-'+k;dirty.delete(id);try{localStorage.removeItem(LS+id);}catch(e){}delete last[id];if(dbc){try{Promise.resolve(dbc.doc(id).delete()).catch(()=>{});}catch(e){}}});
+  saveCfg();saveGoals();saveRem();saveWk();applySkin();setAvatar();render();
+}
+function showBkPrev(){
+  const o=BKP.o,a=bkCounts({days:S.days,goals:G(),rem:S.rem,wk:S.wk,photo:bkPhoto()}),b=bkCounts(o);
+  const row=(l,x,y)=>`<div class="cmpr"><span>${l}</span><b class="num">${fa(x)}</b><b class="num">${fa(y)}</b></div>`;
+  const when=o.d&&WKEY.test(o.d)?dateLabel(o.d):'نامشخص';
+  openSheet('بازیابی از فایل',
+   `<p class="sub2" style="margin:0 0 10px">فایل: <bdi dir="ltr">${esc(BKP.name)}</bdi><br>تاریخ پشتیبان: ${when}</p>
+    <div class="cmp"><div class="cmpr h"><span></span><b>الان</b><b>در فایل</b></div>
+     ${row('روز ثبت‌شده',a.days,b.days)}${row('هدف سالانه',a.goals,b.goals)}${row('یادآوری',a.rem,b.rem)}${row('هفته‌ی ثبت‌شده',a.wk,b.wk)}
+     <div class="cmpr"><span>عکس‌ها</span><b>${a.photo?'دارد':'—'}</b><b>${b.photo?'دارد':'—'}</b></div></div>
+    <p class="hint" style="margin:12px 0 0">با تأیید، اطلاعات فعلی با محتوای فایل جایگزین می‌شود. اگر فایل قدیمی‌تر از اطلاعات فعلی است، اول از اطلاعات فعلی فایل پشتیبان بگیر.</p>
+    <button class="btn ghost full" style="margin-top:10px" data-a="bkfile">${ic('dl',18)} اول پشتیبانِ فعلی را بگیر</button>`,
+   `<button class="btn" data-a="bkgo">جایگزین کن</button><button class="btn ghost" data-a="sclose">انصراف</button>`);
+}
 let DIP=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();DIP=e;});
 window.addEventListener('appinstalled',()=>{DIP=null;});
@@ -1199,7 +1243,12 @@ async function runDiag(){
 function bData(){
   const stat={cloud:'روی حساب تو ذخیره می‌شود و بین دستگاه‌ها همگام است.',local:'فقط روی همین دستگاه ذخیره می‌شود.',none:'ذخیره‌سازی در این نمایشگر در دسترس نیست و داده‌ها فقط تا بستن صفحه می‌مانند. از «کپی پشتیبان» استفاده کن.',wait:'در حال ذخیره‌سازی…',bad:'ذخیره‌ی ابری ناموفق بود؛ دوباره تلاش می‌شود.',slow:'اتصال به ذخیره‌سازی برقرار نشد؛ داده‌ی این دستگاه نمایش داده می‌شود.'}[mode];
   return `<p style="margin:0">${stat}</p><p class="hint" style="margin:6px 0 0">تاریخ‌ها به شمسی ذخیره می‌شوند.</p>
-  <div class="lb">پشتیبان‌گیری</div>
+  <div class="lb">پشتیبان‌گیری با فایل</div>
+  <p class="hint" style="margin:0 0 10px">یک فایل پشتیبان می‌سازد و روی گوشی ذخیره می‌کند. آن را به کامپیوتر یا Google Drive ببر و هر وقت خواستی از همین‌جا بازیابی کن. عکس‌ها در فایل هست؛ قفل ورود نیست.</p>
+  <div class="addrow" style="margin-top:0"><button class="btn" data-a="bkfile">${ic('dl',18)} دانلود فایل</button>${navigator.share&&navigator.canShare?`<button class="btn ghost" data-a="bkshare">${ic('sh',18)} ارسال یا Drive</button>`:''}</div>
+  <div class="addrow"><label class="btn ghost full" for="bkf" role="button" tabindex="0">${ic('up',18)} بازیابی از فایل</label><input id="bkf" class="vh" type="file" data-c="bkfile" aria-label="انتخاب فایل پشتیبان"></div>
+  <p class="bkl" id="bk-last">${bkLast()?'آخرین فایل پشتیبان: '+dateLabel(bkLast()):'هنوز فایل پشتیبانی نگرفته‌ای.'}</p>
+  <div class="lb">پشتیبان متنی (کپی و چسباندن)</div>
   <textarea class="in" id="bk" rows="3" placeholder="برای بازیابی، متن پشتیبان را اینجا بچسبان"></textarea>
   <div class="addrow"><button class="btn" data-a="bkcopy">${ic('copy',18)} کپی پشتیبان</button><button class="btn ghost" data-a="bkrestore" data-k="1">بازیابی</button></div>
   <div class="lb">نصب روی گوشی</div>
@@ -1391,13 +1440,27 @@ const A={
     try{navigator.clipboard.writeText(txt).then(()=>toast('پشتیبان کپی شد'),fb);}catch(e){fb();}
   },
   bkrestore(){
-    try{
-      const o=JSON.parse($('#bk').value);if(!o||typeof o.days!=='object')throw new Error('x');
-      if(o.cfg)S.cfg=normCfg(o.cfg);if(o.goals)S.goals=normGoals(o.goals);if(o.rem)S.rem=normRem(o.rem);if(o.wk)S.wk=normWeeks(o.wk);
-      S.days={};Object.keys(o.days).forEach(k=>{S.days[k]=normDay(o.days[k]);persist('d-'+k);});
-      saveCfg();saveGoals();saveRem();saveWk();applySkin();render();toast('پشتیبان بازیابی شد');
-    }catch(e){toast('متن پشتیبان معتبر نیست');}
+    try{const o=bkParse($('#bk').value);applyBackup(o);toast('پشتیبان بازیابی شد');}
+    catch(e){toast('متن پشتیبان معتبر نیست');}
   },
+  bkfile(){
+    try{
+      const blob=new Blob([JSON.stringify(bkBuild())],{type:'application/json'}),a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);a.download=bkName('json');a.rel='noopener';document.body.appendChild(a);a.click();
+      setTimeout(()=>{try{URL.revokeObjectURL(a.href);}catch(e){}a.remove();},8000);
+      bkMark();toast('فایل پشتیبان ساخته شد؛ در پوشه‌ی دانلودهای گوشی است');
+    }catch(e){toast('ساخت فایل ممکن نشد؛ از «کپی پشتیبان» استفاده کن');}
+  },
+  async bkshare(){
+    const txt=JSON.stringify(bkBuild());
+    try{
+      let f=new File([txt],bkName('json'),{type:'application/json'});
+      if(!(navigator.canShare&&navigator.canShare({files:[f]})))f=new File([txt],bkName('txt'),{type:'text/plain'});
+      if(!(navigator.canShare&&navigator.canShare({files:[f]}))){toast('ارسال فایل در این مرورگر ممکن نیست؛ «دانلود فایل» را بزن');return;}
+      await navigator.share({files:[f],title:'پشتیبان My Vision'});bkMark();
+    }catch(e){if(!e||e.name!=='AbortError')toast('ارسال انجام نشد؛ «دانلود فایل» را بزن');}
+  },
+  bkgo(){if(!BKP)return;try{applyBackup(BKP.o);BKP=null;closeSheet();toast('پشتیبان بازیابی شد');}catch(e){toast('بازیابی انجام نشد');}},
   async wipe(){
     const ids=['cfg','goals','rem','wk',...Object.keys(S.days).map(k=>'d-'+k)];
     S.cfg=defCfg();S.goals=null;S.days={};S.rem=[];S.wk={};dirty.clear();
@@ -1419,6 +1482,11 @@ const A={
 };
 function gmod(id,fn){const g=G().find(x=>x.id===id);if(!g)return;fn(g);g.sample=false;saveGoals();render();}
 const CH={
+  bkfile(t){
+    const f=t.files&&t.files[0];t.value='';if(!f)return;
+    if(f.size>30e6){toast('این فایل بزرگ‌تر از یک پشتیبان است');return;}
+    f.text().then(txt=>{let o;try{o=bkParse(txt);}catch(e){toast('این فایل، پشتیبان My Vision نیست');return;}BKP={o,name:f.name};showBkPrev();}).catch(()=>toast('خواندن فایل ممکن نشد'));
+  },
   negw(t){const k=t.dataset.id,v=+t.value;if(['time','forgot','lazy','move'].includes(k)&&[0,.25,.5,1,1.5,2].includes(v)){S.cfg.neg[k]=v;saveCfg();render();}},
   stepE(t){const s=S.cfg.steps.find(x=>x.id===t.dataset.id);if(s){s.e=t.value.trim()||'⭐';saveCfg();}},
   stepT(t){const s=S.cfg.steps.find(x=>x.id===t.dataset.id);if(s){s.t=t.value.trim()||s.t;saveCfg();}},
