@@ -1,11 +1,11 @@
 /* My Vision service worker: the app opens offline after the first visit.
    Same-origin files and Google Fonts are served from cache and refreshed in the background,
    so a new version shows up the second time the app is opened. */
-const CACHE = 'myday-v9';
+const CACHE = 'myday-v11';
 const CORE = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'maskable-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then(c => Promise.allSettled(CORE.map(u => c.add(u)))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
