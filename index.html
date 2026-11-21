@@ -284,6 +284,28 @@ textarea.in{min-height:48px}
 .chip.sk i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-inline:0 6px;vertical-align:-1px;border:1px solid rgba(0,0,0,.25)}
 .btn.sm.lab{cursor:pointer}
 .banner .bi{display:flex;align-items:center;gap:6px;min-width:0}
+/* ---- v11: morning steps with their own writing box ---- */
+.stp{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.stp.on{border-color:color-mix(in srgb,var(--r5) 55%,var(--line));background:color-mix(in srgb,var(--r5) 9%,var(--card))}
+.stp.open{border-color:var(--pri)}
+.sh{display:flex;align-items:center;gap:2px;padding:2px 6px 2px 14px}
+.ckw{flex:none;width:44px;height:44px;display:grid;place-items:center;border:0;background:none;padding:0;touch-action:manipulation}
+.sb{flex:1;min-width:0;display:flex;align-items:center;gap:6px;text-align:right;border:0;background:none;padding:8px 2px;font:inherit;color:inherit;touch-action:manipulation}
+.sb .bx{flex:1;min-width:0;display:grid;gap:2px}
+.sb .l1{display:flex;align-items:center;gap:8px}
+.sb .rt{flex:1;min-width:0;font-size:14px}
+.stp.on .sb .rt{color:var(--mut);text-decoration:line-through}
+.sb .em{font-size:18px}
+.sb .sm{display:block;font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb .sm.e0{display:flex;align-items:center;gap:5px;color:var(--pri);font-weight:700}
+.stp .chv{flex:none;width:30px;height:30px;display:grid;place-items:center;color:var(--mut);transition:transform .2s}
+.stp.open .chv{transform:rotate(180deg)}
+.sp{padding:2px 14px 14px;border-top:1px dashed var(--line)}
+.sp .hint{margin:10px 0 8px}
+.sp .qb{min-height:0}
+.stk{padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.sl{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mut)}
+.sl select{flex:1;min-width:0}
 /* ---- v10 lock screen: theme gradient + pattern, app icon, clock, glass panel, PIN keypad ---- */
 #lock{--lk1:#0B3331;--lk2:#14524F;--lk3:#236A66;--lka:#FF8A4C;--lkon:#2B1200;--lkglow:255,138,76;--lkgl:120,226,214;--lkh:132px;
   position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:100;overflow-x:hidden;overflow-y:auto;color:#fff;
@@ -373,11 +395,12 @@ html.locked main,html.locked header,html.locked nav,html.locked .sheet{visibilit
 .hero.ph p{font-size:12.5px;text-shadow:0 1px 6px rgba(0,0,0,.35)}
 .hero.ph .mini{margin-top:14px}
 /* ---- v4: category tiles (theme 1: small outlined tiles, label below; theme 2: big white cards, label above) ---- */
-.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 10px;margin-top:14px}
+.cats{display:grid;grid-template-columns:repeat(var(--cn,4),1fr);gap:12px 10px;margin-top:14px}
 .cat{border:0;background:none;padding:0;display:flex;flex-direction:column-reverse;align-items:center;gap:6px;color:var(--tlab);font:inherit;font-size:12px;font-weight:700;position:relative;min-width:0;line-height:1.35}
 .cat .cl{max-width:100%;text-align:center}
 .cat .ct{width:100%;aspect-ratio:1/1;border-radius:20px;background:var(--tile);border:1px solid var(--line);color:var(--tico);display:grid;place-items:center;box-shadow:var(--tsh);transition:transform .12s,background .15s}
 .cat:active .ct{transform:scale(.95)}
+.cats.c3 .ct{aspect-ratio:1.5/1}
 .cat .ic{width:34px;height:34px;stroke-width:2.2}
 .ic *{vector-effect:non-scaling-stroke}
 .f,.f *{fill:var(--icof,none);stroke:none}
@@ -549,8 +572,10 @@ const negOf=cfg=>Object.assign({},NEGDEF,cfg&&cfg.neg||{});
 const MISS0=()=>({move:0,time:0,forgot:0,lazy:0,ctl:0,cancel:0});
 function lvlOf(p){p=Math.max(0,+p||0);const i=Math.min(LV.length-1,Math.floor(p/PER));const last=i===LV.length-1;return {n:i+1,name:LV[i],next:last?'':LV[i+1],left:last?0:PER-(p-i*PER),pct:last?100:Math.round(100*(p-i*PER)/PER)};}
 function canon(v){if(Array.isArray(v))return '['+v.map(canon).join(',')+']';if(v&&typeof v==='object')return '{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canon(v[k])).join(',')+'}';return JSON.stringify(v);}
-const newDay=()=>({done:[],sel:[],g:['','',''],line:'',str:'',pri:'',blocks:[],tasks:[],rate:0,win:'',lesson:'',first:'',auto:{}});
-function normDay(d){const b=newDay();d=d||{};for(const k in b)if(d[k]!==undefined&&d[k]!==null)b[k]=JSON.parse(JSON.stringify(d[k]));if(!Array.isArray(b.g))b.g=['','',''];while(b.g.length<3)b.g.push('');return b;}
+const newDay=()=>({done:[],sel:[],g:['','',''],line:'',str:'',pri:'',notes:{},blocks:[],tasks:[],rate:0,win:'',lesson:'',first:'',auto:{}});
+function normDay(d){const b=newDay();d=d||{};for(const k in b)if(d[k]!==undefined&&d[k]!==null)b[k]=JSON.parse(JSON.stringify(d[k]));if(!Array.isArray(b.g))b.g=['','',''];while(b.g.length<3)b.g.push('');
+  if(!b.notes||typeof b.notes!=='object'||Array.isArray(b.notes))b.notes={};
+  Object.keys(b.notes).forEach(k=>{if(typeof b.notes[k]!=='string')delete b.notes[k];});return b;}
 const WCATS=[
  {id:'act',n:'اقدام‌ها',h:'چه اقدامی کردی؟'},
  {id:'cou',n:'شجاعت‌ها',h:'کجا جسارت به خرج دادی؟'},
@@ -598,15 +623,13 @@ function dayScore(d,cfg){
     if(t.moved){miss.move++;if(ng.on){tn++;wsum+=ng.move;}continue;}
     tn++;
   }
-  const bd=d.blocks.filter(b=>b.done).length;
   const parts=[];
   if(sv)parts.push(sd/sv);
   if(tn)parts.push(td/tn);
-  if(d.blocks.length)parts.push(bd/d.blocks.length);
   const base=parts.length?100*parts.reduce((a,b)=>a+b,0)/parts.length:0;
   const pen=PENU*wsum;
   const score=Math.round(Math.max(-100,Math.min(100,base-pen)));
-  return {score,base:Math.round(base),pen:Math.round(pen*10)/10,miss,sd,sv,td,tn,bd,bn:d.blocks.length};
+  return {score,base:Math.round(base),pen:Math.round(pen*10)/10,miss,sd,sv,td,tn};
 }
 function streaks(days,cfg,today){
   const act=k=>!!days[k]&&dayScore(days[k],cfg).score>=50;
@@ -684,7 +707,7 @@ function defCfg(){return {
   {id:'s2',e:'🧘',t:'دو دقیقه مدیتیشن'},
   {id:'s3',e:'🙏',t:'نوشتن سه مورد قدردانی',l:'g'},
   {id:'s4',e:'✍️',t:'نوشتن یک خط',l:'line'},
-  {id:'s5',e:'🤸',t:'انجام سه حرکت کششی',l:'str'},
+  {id:'s5',e:'🤸',t:'انجام سه حرکت کششی'},
   {id:'s6',e:'🎯',t:'نوشتن اولویت‌های امروز',l:'pri'},
   {id:'s7',e:'🌱',t:'انتخاب کیفیت شخصیت امروز',l:'sel'}],
  qual:[
@@ -703,7 +726,9 @@ function defCfg(){return {
   {s:'18:00',e:'20:00',t:'خانواده',c:'family'},
   {s:'21:30',e:'22:00',t:'مرور شبانه',c:'mind'}],skin:'teal',autoCarry:false,heroPhoto:true,pat:'none',patI:2,neg:{...NEGDEF}};}
 function normNeg(o){const W=[0,.25,.5,1,1.5,2],r={on:!o||o.on!==false};for(const k of ['time','forgot','lazy','move'])r[k]=o&&typeof o[k]==='number'&&W.includes(o[k])?o[k]:NEGDEF[k];return r;}
-function normCfg(c){const d=defCfg();c=c||{};const o=JSON.parse(JSON.stringify(c));return {steps:Array.isArray(o.steps)?o.steps:d.steps,qual:Array.isArray(o.qual)?o.qual:d.qual,tpl:Array.isArray(o.tpl)?o.tpl:d.tpl,skin:['purple','sage'].includes(o.skin)?o.skin:'teal',autoCarry:!!o.autoCarry,heroPhoto:o.heroPhoto!==false,pat:PATS.some(p=>p[0]===o.pat)?o.pat:'none',patI:[1,2,3].includes(+o.patI)?+o.patI:2,neg:normNeg(o.neg)};}
+const STEPL=['g','line','pri','sel','note'];
+const normStep=x=>{if(!x||typeof x!=='object'||typeof x.id!=='string'||!x.id)return null;const r={id:x.id,e:typeof x.e==='string'&&x.e?x.e:'⭐',t:typeof x.t==='string'&&x.t?x.t:'قدم'};if(STEPL.includes(x.l))r.l=x.l;return r;};
+function normCfg(c){const d=defCfg();c=c||{};const o=JSON.parse(JSON.stringify(c));return {steps:(Array.isArray(o.steps)?o.steps:d.steps).map(normStep).filter(Boolean),qual:Array.isArray(o.qual)?o.qual:d.qual,tpl:Array.isArray(o.tpl)?o.tpl:d.tpl,skin:['purple','sage'].includes(o.skin)?o.skin:'teal',autoCarry:!!o.autoCarry,heroPhoto:o.heroPhoto!==false,pat:PATS.some(p=>p[0]===o.pat)?o.pat:'none',patI:[1,2,3].includes(+o.patI)?+o.patI:2,neg:normNeg(o.neg)};}
 function normGoals(l){return (Array.isArray(l)?JSON.parse(JSON.stringify(l)):[]).map(g=>({id:g.id||uid(),t:g.t||'هدف',y:g.y||parseKey(TK)[0],sample:!!g.sample,metric:g.metric||null,effort:g.effort||null,actions:g.actions||[],efforts:g.efforts||[],habits:g.habits||[]}));}
 function defGoals(){return [{id:'g-sample',sample:true,t:'نمونه: مطالعه ۱۲ کتاب در سال',y:parseKey(TK)[0],
  metric:{name:'کتاب خوانده‌شده',unit:'کتاب',start:0,target:12,cur:0,log:[]},
@@ -857,7 +882,7 @@ function autoTick(){
   const d=D(PK);let ch=false;
   S.cfg.steps.forEach(s=>{
     if(!s.l||d.auto[s.id]||d.done.includes(s.id))return;
-    const ok=s.l==='g'?d.g.filter(x=>x.trim()).length>=3:s.l==='sel'?d.sel.length>0:!!String(d[s.l]||'').trim();
+    const ok=s.l==='g'?d.g.filter(x=>x.trim()).length>=3:s.l==='sel'?d.sel.length>0:s.l==='note'?!!String((d.notes||{})[s.id]||'').trim():!!String(d[s.l]||'').trim();
     if(ok){d.done.push(s.id);d.auto[s.id]=1;ch=true;}
   });
   if(ch)touch(PK);return ch;
@@ -977,12 +1002,12 @@ async function bioUnlock(){
 let SEC={day:'tasks',set:'s-look'},RP='1',prevTab='day';
 try{const a=JSON.parse(localStorage.getItem(LS+'sec')||'null');if(a&&typeof a==='object'){if(typeof a.day==='string')SEC.day=a.day;if(typeof a.set==='string')SEC.set=a.set;}}catch(e){}
 const saveSec=()=>{try{localStorage.setItem(LS+'sec',JSON.stringify(SEC));}catch(e){}};
-const ACI={steps:'sun',plan:'blocks',tasks:'tasks',week:'wk',rem:'bell',write:'pen',night:'moon',stats:'bars','s-look':'palette','s-lock':'lock','s-day':'tune','s-data':'shield'};
+const ACI={steps:'sun',tasks:'tasks',week:'wk',rem:'bell',night:'moon',stats:'bars','s-look':'palette','s-lock':'lock','s-day':'tune','s-data':'shield'};
 /* category tiles + the one selected section under them */
 function sect(scope,list){
   let cur=SEC[scope];if(!list.some(x=>x.id===cur))cur=SEC[scope]=list[0].id;
   const q=list.find(x=>x.id===cur);
-  return `<div class="cats">${list.map(x=>`<button class="cat ${x.id===cur?'on':''}" data-a="sec" data-sc="${scope}" data-id="${x.id}" aria-pressed="${x.id===cur}"><span class="cl">${x.lab}</span><span class="ct">${ic(ACI[x.id],30,1)}</span>${x.badge?`<span class="tb num ${x.al?'al':''}">${x.badge}</span>`:''}</button>`).join('')}</div>
+  return `<div class="cats ${list.length%4&&list.length%3===0?'c3':''}" style="--cn:${list.length%4===0?4:list.length%3===0?3:4}">${list.map(x=>`<button class="cat ${x.id===cur?'on':''}" data-a="sec" data-sc="${scope}" data-id="${x.id}" aria-pressed="${x.id===cur}"><span class="cl">${x.lab}</span><span class="ct">${ic(ACI[x.id],30,1)}</span>${x.badge?`<span class="tb num ${x.al?'al':''}">${x.badge}</span>`:''}</button>`).join('')}</div>
   <section class="ac open" id="ac-${cur}"><div class="ah"><span class="ai">${ic(ACI[cur],20,1)}</span><span class="at">${q.title}</span>${q.small?`<small class="num">${q.small}</small>`:''}</div><div class="ab">${q.body()}</div></section>`;
 }
 function showSec(scope,id){
@@ -998,21 +1023,34 @@ function relLabel(n){
 const remDate=k=>dateLabel(k)+(parseKey(k)[0]!==parseKey(TK)[0]?' '+fa(parseKey(k)[0]):'');
 
 /* ---------- views ---------- */
-function bSteps(d){
-  const rows=S.cfg.steps.map(s=>{const on=d.done.includes(s.id);return `<button class="row-b ${on?'on':''}" data-a="step" data-id="${s.id}">${cbx(on)}<span class="rt">${esc(s.t)}</span><span class="em">${esc(s.e)}</span></button>`;}).join('');
-  return rows?`<div class="rows">${rows}</div>`:'<div class="empty"><b>هنوز قدمی نداری</b>از تنظیمات (چرخ‌دنده‌ی بالا) یک قدم اضافه کن.</div>';
+let STO=null;
+const STEPM=[['','فقط تیک (مثل حرکات کششی)'],['note','کادر نوشتن'],['g','سه خط نوشتن (مثل قدردانی)'],['sel','انتخاب از ویژگی‌های روز']];
+const stepMode=x=>x.l==='g'?'g':x.l==='sel'?'sel':(x.l==='line'||x.l==='pri'||x.l==='note')?'note':'';
+function stepSum(x,d){
+  if(x.l==='g')return d.g.map(v=>v.trim()).filter(Boolean).join(' · ');
+  if(x.l==='sel')return S.cfg.qual.filter(q=>d.sel.includes(q.id)).map(q=>q.t).join('، ');
+  const v=x.l==='note'?((d.notes||{})[x.id]||''):String(d[x.l]||'');
+  return v.trim().replace(/\s*\n\s*/g,' · ');
 }
-
-function bPlan(d,sc,isT){
-  const bl=[...d.blocks].sort((a,b)=>tmin(a.s)-tmin(b.s));
-  const plan=bl.reduce((a,b)=>a+tmin(b.e)-tmin(b.s),0),dn=bl.filter(b=>b.done).reduce((a,b)=>a+tmin(b.e)-tmin(b.s),0);
-  const nm=nowMin();
-  const rows=bl.map((b,i)=>{
-    const c=catOf(b.c),now=isT&&nm>=tmin(b.s)&&nm<tmin(b.e),ov=i>0&&tmin(b.s)<tmin(bl[i-1].e);
-    return `<div class="blk ${b.done?'dn':''} ${now?'now':''}" style="--c:var(${c.c})"><button class="cb ck ${b.done?'on':''}" data-a="bdone" data-id="${b.id}" aria-label="انجام شد">${b.done?ic('check',15):''}</button><button class="bb" data-a="bedit" data-id="${b.id}"><div class="tm num"><bdi>${fmtT(b.s)} تا ${fmtT(b.e)}</bdi> · <bdi>${dur(tmin(b.e)-tmin(b.s))}</bdi></div><div class="bt">${esc(b.t)}</div><div>${now?'<span class="pill">اکنون</span> ':''}<span class="pill m">${c.n}</span>${ov?' <span class="pill o">تداخل زمانی</span>':''}</div></button></div>`;}).join('');
-  return `<div class="tiles num" style="margin-top:0"><div class="tile"><b>${fa(sc.score)}٪</b><small>نمره روز</small></div><div class="tile"><b>${fx(plan/60)}</b><small>ساعت برنامه‌ریزی‌شده</small></div><div class="tile"><b>${fx(dn/60)}</b><small>ساعت انجام‌شده</small></div></div>
-  <div style="margin-top:12px">${bl.length?`<div class="rows">${rows}</div><div class="addrow"><button class="btn ghost" data-a="badd">${ic('plus',18)} بلوک جدید</button><button class="btn ghost" data-a="savetpl" data-k="1">ذخیره به‌عنوان قالب</button></div>`:
-   `<div class="empty"><b>این روز هنوز برنامه‌ای ندارد</b>قالب پیشنهادی را بارگذاری کن و هر بلوک را با لمس تغییر بده.<div class="addrow" style="justify-content:center"><button class="btn" data-a="tpl">بارگذاری قالب پیشنهادی</button><button class="btn ghost" data-a="badd">بلوک جدید</button></div></div>`}</div>`;
+function stepPanel(x,d){
+  const k=x.l;
+  if(k==='g')return `<p class="hint">حتی چیزهای ساده و کوچک هم ارزش دیدن دارند.</p><div class="stack">${[0,1,2].map(i=>`<input class="in" id="f-g${i}" data-b="g${i}" value="${esc(d.g[i])}" placeholder="${fa(i+1)}. امروز قدردانِ ... هستم">`).join('')}</div>`;
+  if(k==='sel')return `<p class="hint">یک یا چند مورد را انتخاب کن.</p><div class="qgrid">${S.cfg.qual.map(q=>`<button class="qb ${d.sel.includes(q.id)?'on':''}" data-a="qual" data-id="${q.id}"><span>${esc(q.e)}</span><b>${esc(q.t)}</b><small>${esc(q.d)}</small></button>`).join('')}</div>`;
+  const note=k==='note',val=note?((d.notes||{})[x.id]||''):String(d[k]||'');
+  const hint={line:'یک فکر، یک جمله یا یک تصمیم که با خودت همراه داری.',pri:'مهم‌ترین کارها را بنویس؛ فهرستت لازم نیست طولانی باشد.',note:''}[k];
+  const ph={line:'امروز می‌خواهم به خودم یادآوری کنم که...',pri:'۱. مهم‌ترین اولویت من...&#10;۲. ...&#10;۳. ...',note:'اینجا بنویس...'}[k];
+  return `${hint?`<p class="hint">${hint}</p>`:'<div style="height:10px"></div>'}<textarea class="in" id="f-${note?'n-'+esc(x.id):k}" data-b="${note?'n:'+esc(x.id):k}" rows="${k==='line'?2:3}" placeholder="${ph}">${esc(val)}</textarea>`;
+}
+function bSteps(d){
+  if(!S.cfg.steps.length)return '<div class="empty"><b>هنوز قدمی نداری</b>از تنظیمات (چرخ‌دنده‌ی بالا) یک قدم اضافه کن.</div>';
+  const rows=S.cfg.steps.map(x=>{
+    const on=d.done.includes(x.id);
+    if(!x.l)return `<button class="row-b ${on?'on':''}" data-a="step" data-id="${x.id}">${cbx(on)}<span class="rt">${esc(x.t)}</span><span class="em">${esc(x.e)}</span></button>`;
+    const open=STO===x.id,sum=stepSum(x,d);
+    return `<div class="stp ${on?'on':''} ${open?'open':''}" id="stp-${esc(x.id)}"><div class="sh"><button type="button" class="ckw" data-a="step" data-id="${x.id}" aria-label="انجام شد: ${esc(x.t)}" aria-pressed="${on}">${cbx(on)}</button><button type="button" class="sb" data-a="stepopen" data-id="${x.id}" aria-expanded="${open}"><span class="bx"><span class="l1"><span class="rt">${esc(x.t)}</span></span><span class="sm ${sum?'':'e0'}">${sum?esc(sum):ic('pen',13)+' '+(x.l==='sel'?'برای انتخاب بزن':'برای نوشتن بزن')}</span></span><span class="chv">${ic('chd',18)}</span><span class="em">${esc(x.e)}</span></button></div>${open?`<div class="sp">${stepPanel(x,d)}</div>`:''}</div>`;
+  }).join('');
+  const any=S.cfg.steps.some(x=>x.l);
+  return `<div class="rows">${rows}</div>${any?'<p class="hint" style="margin:12px 2px 0">روی نام قدمی که نوشتن دارد بزن تا کادرش باز شود؛ با دایره‌ی کنارش تیک بزن. نوع هر قدم از چرخ‌دنده ← «روزانه» قابل تغییر است.</p>':''}`;
 }
 
 function bTasks(d){
@@ -1087,19 +1125,6 @@ function bRem(){
   <p class="hint" style="margin-top:10px">یادآوری‌ها فقط وقتی برنامه را باز می‌کنی دیده می‌شوند؛ اعلان پس‌زمینه ندارند.</p>`;
 }
 
-function bWrite(d){
-  return `<div class="wb"><b>سه چیزی که بابتشان قدردانم</b><p class="hint">حتی چیزهای ساده و کوچک هم ارزش دیدن دارند.</p>
-    <div class="stack">${[0,1,2].map(i=>`<input class="in" id="f-g${i}" data-b="g${i}" value="${esc(d.g[i])}" placeholder="${fa(i+1)}. امروز قدردانِ ... هستم">`).join('')}</div></div>
-  <div class="wb"><b>یک خط برای امروز من</b><p class="hint">یک فکر، یک جمله یا یک تصمیم که با خودت همراه داری.</p>
-    <textarea class="in" id="f-line" data-b="line" rows="2" placeholder="امروز می‌خواهم به خودم یادآوری کنم که...">${esc(d.line)}</textarea></div>
-  <div class="wb"><b>سه حرکت کششی</b><p class="hint">حرکت‌ها را آرام و بدون فشار انجام بده.</p>
-    <textarea class="in" id="f-str" data-b="str" rows="2" placeholder="مثلاً: کشش گردن، باز کردن شانه‌ها، کشش دست‌ها">${esc(d.str)}</textarea></div>
-  <div class="wb"><b>اولویت‌های امروز</b><p class="hint">مهم‌ترین کارها را بنویس؛ فهرستت لازم نیست طولانی باشد.</p>
-    <textarea class="in" id="f-pri" data-b="pri" rows="3" placeholder="۱. مهم‌ترین اولویت من...&#10;۲. ...&#10;۳. ...">${esc(d.pri)}</textarea></div>
-  <div class="wb"><b>امروز می‌خواهم چه انسانی باشم؟</b><p class="hint">یک یا چند مورد</p>
-    <div class="qgrid">${S.cfg.qual.map(q=>`<button class="qb ${d.sel.includes(q.id)?'on':''}" data-a="qual" data-id="${q.id}"><span>${esc(q.e)}</span><b>${esc(q.t)}</b><small>${esc(q.d)}</small></button>`).join('')}</div></div>`;
-}
-
 function bNight(d){
   return `<p class="hint" style="margin-top:6px">این امتیاز، رنگ روز تو در تقویم آمار می‌شود.</p>
     <div class="rate">${RATE.map((r,i)=>`<button class="${d.rate===i+1?'on':''}" style="--c:var(${r.c})" data-a="rate" data-v="${i+1}"><span>${r.e}</span>${r.n}</button>`).join('')}</div>
@@ -1134,12 +1159,10 @@ function viewDay(){
   ${carry.length?`<div class="banner"><span>${fa(carry.length)} کار نیمه‌تمام از دیروز مانده است.</span><button class="btn sm" data-a="carry">انتقال به امروز</button></div>`:''}
   ${fwd?`<div class="banner"><span>${fa(open.length)} کار این روز انجام نشده است.</span><button class="btn sm" data-a="carryfwd">انتقال به ${isT?'فردا':dateLabel(addDays(PK,1))}</button></div>`:''}
   ${sect('day',[
-   {id:'steps',lab:'صبحگاهی',title:'قدم‌های صبحگاهی',small:fa(sc.sd)+' از '+fa(sc.sv),body:()=>bSteps(d),badge:sc.sv?fa(sc.sd)+'/'+fa(sc.sv):''},
-   {id:'plan',lab:'زمان‌بندی',title:'زمان‌بندی روز',small:sc.bn?fa(sc.bd)+' از '+fa(sc.bn)+' بلوک':'',body:()=>bPlan(d,sc,isT),badge:sc.bn?fa(sc.bd)+'/'+fa(sc.bn):''},
+   {id:'steps',lab:'صبحگاهی',title:'صبحگاهی و نوشتن',small:fa(sc.sd)+' از '+fa(sc.sv),body:()=>bSteps(d),badge:sc.sv?fa(sc.sd)+'/'+fa(sc.sv):''},
    {id:'tasks',lab:'کارها',title:'کارها',small:fa(sc.td)+' از '+fa(sc.tn),body:()=>bTasks(d),badge:sc.tn?fa(sc.td)+'/'+fa(sc.tn):''},
    {id:'week',lab:'هفتگی',title:'برنامه‌ی هفتگی',small:wsT.tot?fa(wsT.done)+' از '+fa(wsT.tot):'',body:bWeek,badge:wsT.tot?fa(wsT.done)+'/'+fa(wsT.tot):''},
    {id:'rem',lab:'یادآوری',title:'یادآوری‌ها',small:act?fa(act)+' فعال':'',body:bRem,badge:act?fa(act):'',al:due.length>0},
-   {id:'write',lab:'نوشتن',title:'مکث و نوشتن',small:'',body:()=>bWrite(d)},
    {id:'night',lab:'مرور شب',title:'مرور شبانه',small:d.rate?RATE[d.rate-1].e:'',body:()=>bNight(d)},
    {id:'stats',lab:'آمار',title:'آمار و نمودارها',small:'میانگین هفته '+sgp(st.w),body:bStats}])}`;
 }
@@ -1214,7 +1237,7 @@ function bStats(){
   let det='';
   if(SD){const dy=S.days[SD]||EMPTY,x=dayScore(dy,S.cfg);
     det=`<div class="card" style="margin-top:12px"><b>${dateLabel(SD)}</b> <span class="pill ${x.score<0?'n':x.score>=50?'g':'m'} num">نمره ${sgp(x.score)}</span>${dy.rate?` <span class="pill">${RATE[dy.rate-1].e} ${RATE[dy.rate-1].n}</span>`:''}
-    <div class="sub2 num" style="margin-top:6px">${fa(x.sd)} از ${fa(x.sv)} قدم · ${fa(x.td)} از ${fa(x.tn)} کار · ${fa(x.bd)} از ${fa(x.bn)} بلوک</div>
+    <div class="sub2 num" style="margin-top:6px">${fa(x.sd)} از ${fa(x.sv)} قدم · ${fa(x.td)} از ${fa(x.tn)} کار</div>
     ${x.pen>0?`<div class="sub2" style="margin-top:4px">کسر امتیاز: <bdi dir="ltr" class="num">−${fp(x.pen)}</bdi> (${missTxt(x.miss)})</div>`:''}
     ${dy.line?`<p style="margin:8px 0 0;font-size:13.5px">${esc(dy.line)}</p>`:''}${dy.win?`<p class="sub2" style="margin:4px 0 0">دستاورد: ${esc(dy.win)}</p>`:''}
     <button class="btn ghost sm" style="margin-top:10px" data-a="cgo">باز کردن این روز</button></div>`;}
@@ -1280,8 +1303,9 @@ function bLock(){
 }
 function bDaily(){
   const c=S.cfg;
-  return `<div class="lb" style="margin-top:2px">قدم‌های صبحگاهی <span class="sub2">(نام و شکلک را ویرایش کن)</span></div>
-  ${c.steps.map((s,i)=>`<div class="sr"><input class="in em" data-c="stepE" data-id="${s.id}" value="${esc(s.e)}" aria-label="شکلک"><input class="in" data-c="stepT" data-id="${s.id}" value="${esc(s.t)}" aria-label="عنوان قدم"><button class="ib" data-a="smove" data-w="steps" data-id="${s.id}" data-n="-1" aria-label="بالا" ${i?'':'disabled'}>${ic('chd',18).replace('<svg','<svg style="transform:rotate(180deg)"')}</button><button class="ib" data-a="sdel" data-w="steps" data-id="${s.id}" data-k="1" aria-label="حذف">${ic('trash',18)}</button></div>`).join('')}
+  return `<div class="lb" style="margin-top:2px">قدم‌های صبحگاهی <span class="sub2">(نام، شکلک و نوع هر قدم)</span></div>
+  <p class="hint" style="margin:0 0 6px">برای هر قدم تعیین کن فقط تیک بخورد یا کادر نوشتن هم داشته باشد.</p>
+  ${c.steps.map((s,i)=>`<div class="stack stk"><div class="sr" style="margin:0"><input class="in em" data-c="stepE" data-id="${s.id}" value="${esc(s.e)}" aria-label="شکلک"><input class="in" data-c="stepT" data-id="${s.id}" value="${esc(s.t)}" aria-label="عنوان قدم"><button class="ib" data-a="smove" data-w="steps" data-id="${s.id}" data-n="-1" aria-label="بالا" ${i?'':'disabled'}>${ic('chd',18).replace('<svg','<svg style="transform:rotate(180deg)"')}</button><button class="ib" data-a="sdel" data-w="steps" data-id="${s.id}" data-k="1" aria-label="حذف">${ic('trash',18)}</button></div><div class="sl"><label for="sl-${s.id}">این قدم:</label><select class="in" id="sl-${s.id}" data-c="stepL" data-id="${s.id}">${STEPM.map(m=>`<option value="${m[0]}" ${stepMode(s)===m[0]?'selected':''}>${m[1]}</option>`).join('')}</select></div></div>`).join('')}
   <div class="addrow"><button class="btn ghost" data-a="sadd" data-w="steps">${ic('plus',18)} قدم تازه</button></div>
   <div class="lb">ویژگی‌های روز <span class="sub2">(«امروز می‌خواهم چه انسانی باشم؟»)</span></div>
   ${c.qual.map(q=>`<div class="stack" style="padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:12px"><div class="sr" style="margin:0"><input class="in em" data-c="qE" data-id="${q.id}" value="${esc(q.e)}" aria-label="شکلک"><input class="in" data-c="qT" data-id="${q.id}" value="${esc(q.t)}" aria-label="عنوان"><button class="ib" data-a="sdel" data-w="qual" data-id="${q.id}" data-k="1" aria-label="حذف">${ic('trash',18)}</button></div><input class="in" data-c="qD" data-id="${q.id}" value="${esc(q.d)}" aria-label="توضیح"></div>`).join('')}
@@ -1292,9 +1316,7 @@ function bDaily(){
   <div class="lb">امتیاز منفی برای کارهای انجام‌نشده</div>
   <div class="chips"><button class="chip ${c.neg.on?'on':''}" data-a="negon" aria-pressed="${c.neg.on}">کسر امتیاز برای کارهای رها‌شده</button></div>
   <p class="hint" style="margin-top:8px">با روشن بودن، کار منتقل‌شده یا بسته‌شده به‌خاطر کمبود زمان، فراموشی و اهمال‌کاری در نمره‌ی همان روز حساب می‌شود و نمره‌ی روز می‌تواند منفی شود. «خارج از اختیار» و «دیگر لازم نیست» هیچ کسری ندارند.</p>
-  ${c.neg.on?[['move','انتقال به روز بعد'],['time','کمبود زمان'],['forgot','فراموشی'],['lazy','اهمال‌کاری']].map(r=>`<div class="wrow"><span>${r[1]}</span><select class="in" data-c="negw" data-id="${r[0]}" aria-label="کسر امتیاز ${r[1]}">${[0,.25,.5,1,1.5,2].map(w=>`<option value="${w}" ${c.neg[r[0]]===w?'selected':''}>${w===0?'بدون کسر':fp(w*PENU)+' امتیاز'}</option>`).join('')}</select></div>`).join('')+'<p class="hint" style="margin-top:8px">عددها یعنی به‌ازای هر کار چند امتیاز از نمره‌ی آن روز کم شود.</p>':''}
-  <div class="lb">قالب روز (${fa(c.tpl.length)} بلوک)</div>
-  <p class="hint" style="margin:0 0 10px">از بخش «زمان‌بندی روز»، بلوک‌های یک روز را به‌عنوان قالب ذخیره می‌کنی. اینجا قالب پیشنهادی اولیه را برمی‌گردانی.</p><button class="btn ghost" data-a="tpldef" data-k="1">بازگردانی قالب پیشنهادی</button>`;
+  ${c.neg.on?[['move','انتقال به روز بعد'],['time','کمبود زمان'],['forgot','فراموشی'],['lazy','اهمال‌کاری']].map(r=>`<div class="wrow"><span>${r[1]}</span><select class="in" data-c="negw" data-id="${r[0]}" aria-label="کسر امتیاز ${r[1]}">${[0,.25,.5,1,1.5,2].map(w=>`<option value="${w}" ${c.neg[r[0]]===w?'selected':''}>${w===0?'بدون کسر':fp(w*PENU)+' امتیاز'}</option>`).join('')}</select></div>`).join('')+'<p class="hint" style="margin-top:8px">عددها یعنی به‌ازای هر کار چند امتیاز از نمره‌ی آن روز کم شود.</p>':''}`;
 }
 let BKP=null;
 const bkPhoto=()=>{try{return {av:localStorage.getItem(LS+'avatar')||'',hb:localStorage.getItem(LS+'herobg')||''};}catch(e){return {av:'',hb:''};}};
@@ -1505,22 +1527,10 @@ const A={
   },
   pday(el){PK=addDays(PK,+el.dataset.n);render();},
   ptoday(){PK=TK;render();},
-  bdone(el){const b=D(PK).blocks.find(x=>x.id===el.dataset.id);if(b){b.done=!b.done;touch(PK);render();}},
-  badd(){openBlock(null);},
-  bedit(el){openBlock(el.dataset.id);},
-  bcat(el){SH.c=el.dataset.id;document.querySelectorAll('#pn [data-a=bcat]').forEach(b=>b.classList.toggle('on',b===el));},
-  bsave(){
-    const t=$('#sb-t').value.trim(),s=$('#sb-s').value,e=$('#sb-e').value;
-    if(!t||!s||!e){toast('عنوان و زمان‌ها را کامل کن');return;}
-    if(tmin(e)<=tmin(s)){toast('پایان باید بعد از شروع باشد');return;}
-    const d=D(PK);
-    if(SH.id){const b=d.blocks.find(x=>x.id===SH.id);if(b)Object.assign(b,{t,s,e,c:SH.c});}else d.blocks.push({id:uid(),t,s,e,c:SH.c,done:false});
-    touch(PK);closeSheet();render();
+  stepopen(el){
+    const id=el.dataset.id;STO=STO===id?null:id;render();
+    if(STO){setTimeout(()=>{const p=document.getElementById('stp-'+STO),i=p?[...p.querySelectorAll('textarea,input')]:[],n=i.find(q=>!q.value)||i[0];if(n){n.focus();try{const l=n.value.length;n.setSelectionRange(l,l);}catch(e){}}},60);}
   },
-  bdel(){const d=D(PK);d.blocks=d.blocks.filter(b=>b.id!==SH.id);touch(PK);closeSheet();render();},
-  tpl(){const d=D(PK);S.cfg.tpl.forEach(b=>d.blocks.push({id:uid(),t:b.t,s:b.s,e:b.e,c:b.c,done:false}));touch(PK);render();},
-  savetpl(){const d=dd(PK);if(!d.blocks.length)return;S.cfg.tpl=[...d.blocks].sort((a,b)=>tmin(a.s)-tmin(b.s)).map(b=>({s:b.s,e:b.e,t:b.t,c:b.c}));saveCfg();toast('قالب جدید ذخیره شد');render();},
-  tpldef(){S.cfg.tpl=defCfg().tpl;saveCfg();toast('قالب پیشنهادی برگشت');render();},
   tadd(){const i=$('#nt'),t=i.value.trim();if(!t)return;D(PK).tasks.push({id:uid(),t,done:false});touch(PK);render();const n=$('#nt');if(n)n.focus();},
   tdone(el){const t=D(PK).tasks.find(x=>x.id===el.dataset.id);if(t){t.done=!t.done;touch(PK);render();}},
   tmove(el){moveTask(PK,el.dataset.id,addDays(PK,1));render();toast('به '+dateLabel(addDays(PK,1))+' منتقل شد');},
@@ -1629,6 +1639,13 @@ const CH={
   },
   negw(t){const k=t.dataset.id,v=+t.value;if(['time','forgot','lazy','move'].includes(k)&&[0,.25,.5,1,1.5,2].includes(v)){S.cfg.neg[k]=v;saveCfg();render();}},
   stepE(t){const s=S.cfg.steps.find(x=>x.id===t.dataset.id);if(s){s.e=t.value.trim()||'⭐';saveCfg();}},
+  stepL(t){
+    const x=S.cfg.steps.find(q=>q.id===t.dataset.id);if(!x)return;
+    const v=t.value;
+    if(v==='')delete x.l;else if(v==='note'){if(!['line','pri','note'].includes(x.l))x.l='note';}else x.l=v;
+    if(STO===x.id&&!x.l)STO=null;
+    saveCfg();render();
+  },
   stepT(t){const s=S.cfg.steps.find(x=>x.id===t.dataset.id);if(s){s.t=t.value.trim()||s.t;saveCfg();}},
   qE(t){const q=S.cfg.qual.find(x=>x.id===t.dataset.id);if(q){q.e=t.value.trim()||'⭐';saveCfg();}},
   qT(t){const q=S.cfg.qual.find(x=>x.id===t.dataset.id);if(q){q.t=t.value.trim()||q.t;saveCfg();}},
@@ -1659,17 +1676,6 @@ const CH={
 };
 
 /* ---------- sheets ---------- */
-function openBlock(id){
-  const d=dd(PK),b=id?d.blocks.find(x=>x.id===id):null;
-  const lastB=[...d.blocks].sort((x,y)=>tmin(x.s)-tmin(y.s)).pop();
-  SH={id:id||null,c:b?b.c:'focus'};
-  const s=b?b.s:(lastB?lastB.e:'09:00'),e=b?b.e:addMin(s,60);
-  openSheet(b?'ویرایش بلوک':'بلوک جدید',
-   `<label class="lb" for="sb-t">عنوان</label><input id="sb-t" class="in" value="${esc(b?b.t:'')}" placeholder="مثلاً: کار عمیق روی پروژه">
-    <div class="two"><div><label class="lb" for="sb-s">شروع</label><input id="sb-s" class="in" type="time" value="${s}"></div><div><label class="lb" for="sb-e">پایان</label><input id="sb-e" class="in" type="time" value="${e}"></div></div>
-    <label class="lb">دسته</label><div class="chips">${CATS.map(c=>`<button class="chip ${c.id===SH.c?'on':''}" data-a="bcat" data-id="${c.id}">${c.n}</button>`).join('')}</div>`,
-   `<button class="btn" data-a="bsave">ذخیره</button>${b?'<button class="btn warn" data-a="bdel" data-k="1">حذف</button>':''}`);
-}
 function openGoalSheet(id){
   const g=id?G().find(x=>x.id===id):null,m=g&&g.metric,e=g&&g.effort;
   SH={id:id||null};
@@ -1738,7 +1744,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('input',e=>{
   const t=e.target,b=t.dataset&&t.dataset.b;if(!b)return;
   const d=D(PK);
-  if(/^g\d$/.test(b))d.g[+b[1]]=t.value;else d[b]=t.value;
+  if(/^g\d$/.test(b))d.g[+b[1]]=t.value;else if(b.slice(0,2)==='n:'){(d.notes||(d.notes={}))[b.slice(2)]=t.value;}else d[b]=t.value;
   touch(PK);
   if(autoTick()){const id=t.id,s=t.selectionStart,en2=t.selectionEnd;render();const n=document.getElementById(id);if(n){n.focus();try{n.setSelectionRange(s,en2);}catch(x){}}}
 });
