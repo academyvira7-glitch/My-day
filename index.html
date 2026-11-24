@@ -284,6 +284,12 @@ textarea.in{min-height:48px}
 .chip.sk i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-inline:0 6px;vertical-align:-1px;border:1px solid rgba(0,0,0,.25)}
 .btn.sm.lab{cursor:pointer}
 .banner .bi{display:flex;align-items:center;gap:6px;min-width:0}
+/* ---- v12: follow-up chip, undo-move chip ---- */
+.tk .why .fu{white-space:nowrap}
+.tk .why .fu{display:inline-flex;align-items:center;gap:5px;min-height:28px;padding:3px 10px;border:1px solid var(--line);border-radius:99px;background:none;color:var(--mut);font:inherit;font-size:11.5px;font-weight:700;touch-action:manipulation}
+.tk .why .fu i{width:11px;height:11px;border-radius:50%;border:1.5px solid currentColor}
+.tk .why .fu.on{background:color-mix(in srgb,var(--r5) 16%,var(--card));border-color:var(--r5);color:var(--ink)}
+.tk .why .fu.bk{color:var(--pri);border-color:color-mix(in srgb,var(--pri) 45%,var(--line))}
 /* ---- v11: morning steps with their own writing box ---- */
 .stp{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
 .stp.on{border-color:color-mix(in srgb,var(--r5) 55%,var(--line));background:color-mix(in srgb,var(--r5) 9%,var(--card))}
@@ -620,7 +626,7 @@ function dayScore(d,cfg){
       if(r&&r.w>0&&ng.on){tn++;wsum+=ng[r.id];}
       continue;
     }
-    if(t.moved){miss.move++;if(ng.on){tn++;wsum+=ng.move;}continue;}
+    if(t.moved){if(t.f)continue;miss.move++;if(ng.on){tn++;wsum+=ng.move;}continue;}
     tn++;
   }
   const parts=[];
@@ -877,7 +883,22 @@ const catOf=id=>CATS.find(c=>c.id===id)||CATS[5];
 const ST=()=>computeStats(S.days,realGoals(),S.cfg,TK);
 const cbx=on=>`<span class="cb ${on?'on':''}">${on?ic('check',15):''}</span>`;
 
-function moveTask(k,id,to){const s=D(k),t=s.tasks.find(x=>x.id===id);if(!t||t.moved||t.x)return;D(to).tasks.push({id:uid(),t:t.t,done:false,from:k});t.moved=to;touch(k);touch(to);}
+function moveTask(k,id,to){const s=D(k),t=s.tasks.find(x=>x.id===id);if(!t||t.moved||t.x)return;const nid=uid();D(to).tasks.push({id:nid,t:t.t,done:false,from:k});t.moved=to;t.mid=nid;touch(k);touch(to);}
+/* the original (moved) task that a carried copy came from */
+function srcOf(t,k){
+  if(!t||!t.from||!WKEY.test(t.from))return null;
+  const sd=S.days[t.from];if(!sd)return null;
+  return sd.tasks.find(x=>x.moved===k&&(x.mid?x.mid===t.id:x.t===t.t))||null;
+}
+/* take a moved task back to its own day; returns 'ok' | 'busy' | 'none' */
+function unmoveTask(sk,sid){
+  const sd=S.days[sk],st=sd&&sd.tasks.find(x=>x.id===sid);
+  if(!st||!st.moved)return 'none';
+  const tk=st.moved,td=S.days[tk],ct=td&&td.tasks.find(x=>st.mid?x.id===st.mid:(x.from===sk&&x.t===st.t&&!x.moved&&!x.x));
+  if(ct&&(ct.done||ct.moved||ct.x))return 'busy';
+  if(ct){td.tasks=td.tasks.filter(x=>x!==ct);touch(tk);}
+  delete st.moved;delete st.mid;touch(sk);return 'ok';
+}
 function autoTick(){
   const d=D(PK);let ch=false;
   S.cfg.steps.forEach(s=>{
@@ -1000,18 +1021,20 @@ async function bioUnlock(){
 
 /* ---------- accordion + reminders helpers ---------- */
 let SEC={day:'tasks',set:'s-look'},RP='1',prevTab='day';
-try{const a=JSON.parse(localStorage.getItem(LS+'sec')||'null');if(a&&typeof a==='object'){if(typeof a.day==='string')SEC.day=a.day;if(typeof a.set==='string')SEC.set=a.set;}}catch(e){}
-const saveSec=()=>{try{localStorage.setItem(LS+'sec',JSON.stringify(SEC));}catch(e){}};
+const SECP={};
+try{const a=JSON.parse(localStorage.getItem(LS+'sec')||'null');if(a&&typeof a==='object'){if(typeof a.day==='string'&&a.day)SEC.day=a.day;if(typeof a.set==='string'&&a.set)SEC.set=a.set;}}catch(e){}
+SECP.day=SEC.day;SECP.set=SEC.set;
+const saveSec=()=>{try{localStorage.setItem(LS+'sec',JSON.stringify(SECP));}catch(e){}};
 const ACI={steps:'sun',tasks:'tasks',week:'wk',rem:'bell',night:'moon',stats:'bars','s-look':'palette','s-lock':'lock','s-day':'tune','s-data':'shield'};
 /* category tiles + the one selected section under them */
 function sect(scope,list){
-  let cur=SEC[scope];if(!list.some(x=>x.id===cur))cur=SEC[scope]=list[0].id;
+  let cur=SEC[scope];if(cur!==''&&!list.some(x=>x.id===cur))cur=SEC[scope]=SECP[scope]=list[0].id;
   const q=list.find(x=>x.id===cur);
   return `<div class="cats ${list.length%4&&list.length%3===0?'c3':''}" style="--cn:${list.length%4===0?4:list.length%3===0?3:4}">${list.map(x=>`<button class="cat ${x.id===cur?'on':''}" data-a="sec" data-sc="${scope}" data-id="${x.id}" aria-pressed="${x.id===cur}"><span class="cl">${x.lab}</span><span class="ct">${ic(ACI[x.id],30,1)}</span>${x.badge?`<span class="tb num ${x.al?'al':''}">${x.badge}</span>`:''}</button>`).join('')}</div>
-  <section class="ac open" id="ac-${cur}"><div class="ah"><span class="ai">${ic(ACI[cur],20,1)}</span><span class="at">${q.title}</span>${q.small?`<small class="num">${q.small}</small>`:''}</div><div class="ab">${q.body()}</div></section>`;
+  ${q?`<section class="ac open" id="ac-${cur}"><div class="ah"><span class="ai">${ic(ACI[cur],20,1)}</span><span class="at">${q.title}</span>${q.small?`<small class="num">${q.small}</small>`:''}</div><div class="ab">${q.body()}</div></section>`:''}`;
 }
 function showSec(scope,id){
-  SEC[scope]=id;saveSec();render();
+  SEC[scope]=id;SECP[scope]=id;saveSec();render();
   const e=$('#ac-'+id);if(e){const r=e.getBoundingClientRect();if(r.top>window.innerHeight*0.62)window.scrollTo({top:window.scrollY+r.top-window.innerHeight*0.4,behavior:'smooth'});}
 }
 function relLabel(n){
@@ -1053,21 +1076,28 @@ function bSteps(d){
   return `<div class="rows">${rows}</div>${any?'<p class="hint" style="margin:12px 2px 0">روی نام قدمی که نوشتن دارد بزن تا کادرش باز شود؛ با دایره‌ی کنارش تیک بزن. نوع هر قدم از چرخ‌دنده ← «روزانه» قابل تغییر است.</p>':''}`;
 }
 
+/* small chips under an open task: "followed up" (no deduction when it moves on) and "back to the previous day" */
+function taskChips(t,ng){
+  const sr=srcOf(t,PK),h=[];
+  if(ng.on)h.push(`<button type="button" class="fu ${t.f?'on':''}" data-a="tfu" data-id="${t.id}" aria-pressed="${!!t.f}">${t.f?ic('check',12):'<i></i>'}پیگیری شد</button>`);
+  if(sr&&!t.moved)h.push(`<button type="button" class="fu bk" data-a="tbk" data-id="${t.id}" aria-label="برگشت کار به ${dateLabel(t.from)}" title="برگشت کار به ${dateLabel(t.from)}">${ic('undo',12)}${t.from===addDays(PK,-1)?'روز قبل':fa(parseKey(t.from)[2])+' '+MONTHS[parseKey(t.from)[1]-1]}</button>`);
+  return h.length?`<span class="why">${h.join('')}</span>`:'';
+}
 function bTasks(d){
   const ng=negOf(S.cfg);
   const tasks=d.tasks.map(t=>{
-    if(t.moved)return `<div class="tk mv"><span class="tt">${esc(t.t)} · به ${dateLabel(t.moved)} منتقل شد${ng.on&&ng.move>0?` <span class="pill n num"><bdi dir="ltr">−${fp(ng.move*PENU)}</bdi></span>`:''}</span></div>`;
+    if(t.moved)return `<div class="tk mv"><span class="tt">${esc(t.t)} · به ${dateLabel(t.moved)} منتقل شد${t.f?' <span class="pill m">پیگیری شده · بدون کسر</span>':ng.on&&ng.move>0?` <span class="pill n num"><bdi dir="ltr">−${fp(ng.move*PENU)}</bdi></span>`:''}</span><button class="ib" data-a="tback" data-id="${t.id}" aria-label="برگشت کار به این روز" title="برگشت کار به این روز">${ic('undo',18)}</button></div>`;
     if(t.x){
       const r=XR.find(q=>q.id===t.x)||XR[0],w=ng.on&&r.w>0?ng[r.id]*PENU:0;
       return `<div class="tk cl"><span class="tt">${esc(t.t)}<span class="why"><span class="pill ${w>0?'n':'m'} num">${r.n}${w>0?' · <bdi dir="ltr">−'+fp(w)+'</bdi>':''}</span>${t.n?'<span>'+esc(t.n)+'</span>':''}</span></span><button class="ib" data-a="treopen" data-id="${t.id}" aria-label="بازگرداندن کار" title="بازگرداندن کار">${ic('undo',18)}</button></div>`;
     }
-    return `<div class="tk ${t.done?'dn':''}"><button class="cb ${t.done?'on':''}" data-a="tdone" data-id="${t.id}" aria-label="انجام شد">${t.done?ic('check',15):''}</button><span class="tt">${esc(t.t)}</span>${t.done?'':`<button class="ib" data-a="tclose" data-id="${t.id}" aria-label="بستن کار با دلیل" title="بستن کار با دلیل">${ic('xc',18)}</button>`}<button class="ib" data-a="tmove" data-id="${t.id}" aria-label="انتقال به روز بعد" title="انتقال به روز بعد">${ic('fwd',18)}</button><button class="ib" data-a="tdel" data-id="${t.id}" data-k="1" aria-label="حذف">${ic('trash',18)}</button></div>`;
+    return `<div class="tk ${t.done?'dn':''}"><button class="cb ${t.done?'on':''}" data-a="tdone" data-id="${t.id}" aria-label="انجام شد">${t.done?ic('check',15):''}</button><span class="tt">${esc(t.t)}${t.done?'':taskChips(t,ng)}</span>${t.done?'':`<button class="ib" data-a="tclose" data-id="${t.id}" aria-label="بستن کار با دلیل" title="بستن کار با دلیل">${ic('xc',18)}</button>`}<button class="ib" data-a="tmove" data-id="${t.id}" aria-label="انتقال به روز بعد" title="انتقال به روز بعد">${ic('fwd',18)}</button><button class="ib" data-a="tdel" data-id="${t.id}" data-k="1" aria-label="حذف">${ic('trash',18)}</button></div>`;
   }).join('');
   const tn=d.tasks.filter(t=>!t.moved&&!t.x),open=tn.filter(t=>!t.done);
   return `<div class="rows">${tasks||'<div class="empty"><b>فهرست کارها خالی است</b>کارهای کوچک را اینجا بنویس؛ کارهای ناتمام را می‌توان به روز بعد برد یا با ذکر دلیل بست.</div>'}</div>
   <div class="addrow"><input class="in" id="nt" placeholder="کار تازه..." enterkeyhint="done"><button class="btn" data-a="tadd" aria-label="افزودن کار">${ic('plus',18)}</button></div>
   ${open.length?`<button class="btn ghost full" style="margin-top:10px" data-a="carryfwd">${ic('fwd',18)} انتقال ${fa(open.length)} کار انجام‌نشده به ${PK===TK?'فردا':dateLabel(addDays(PK,1))}</button>`:''}
-  ${open.length?`<p class="hint" style="margin-top:8px">کاری که اصلاً انجام نمی‌شود یا دست تو نیست را با دکمه‌ی ${ic('xc',14)} ببند و دلیلش را ثبت کن؛ دیگر به روز بعد نمی‌آید.${ng.on&&ng.move>0?' هر کار منتقل‌شده '+fp(ng.move*PENU)+' امتیاز کسر دارد.':''}</p>`:''}
+  ${open.length?`<p class="hint" style="margin-top:8px">کاری که اصلاً انجام نمی‌شود یا دست تو نیست را با دکمه‌ی ${ic('xc',14)} ببند و دلیلش را ثبت کن؛ دیگر به روز بعد نمی‌آید.${ng.on&&ng.move>0?' هر کار منتقل‌شده '+fp(ng.move*PENU)+' امتیاز کسر دارد، مگر اینکه علامت «پیگیری شد» را زده باشی.':''}${ng.on?' کار منتقل‌شده را با دکمه‌ی '+ic('undo',14)+' می‌شود به همان روز برگرداند.':''}</p>`:''}
   ${tn.length&&!open.length?'<p class="hint" style="text-align:center;margin-top:12px">همه‌ی کارها تکلیفشان روشن شد.</p>':''}`;
 }
 
@@ -1315,7 +1345,7 @@ function bDaily(){
   <p class="hint" style="margin-top:8px">با عوض شدن روز، کارهای ناتمام روزهای قبل خودشان به امروز می‌آیند. اگر خاموش باشد، با دکمه‌ی «انتقال» خودت جابه‌جا می‌کنی.</p>
   <div class="lb">امتیاز منفی برای کارهای انجام‌نشده</div>
   <div class="chips"><button class="chip ${c.neg.on?'on':''}" data-a="negon" aria-pressed="${c.neg.on}">کسر امتیاز برای کارهای رها‌شده</button></div>
-  <p class="hint" style="margin-top:8px">با روشن بودن، کار منتقل‌شده یا بسته‌شده به‌خاطر کمبود زمان، فراموشی و اهمال‌کاری در نمره‌ی همان روز حساب می‌شود و نمره‌ی روز می‌تواند منفی شود. «خارج از اختیار» و «دیگر لازم نیست» هیچ کسری ندارند.</p>
+  <p class="hint" style="margin-top:8px">با روشن بودن، کار منتقل‌شده یا بسته‌شده به‌خاطر کمبود زمان، فراموشی و اهمال‌کاری در نمره‌ی همان روز حساب می‌شود و نمره‌ی روز می‌تواند منفی شود. «خارج از اختیار» و «دیگر لازم نیست» هیچ کسری ندارند. کاری که علامت «پیگیری شد» دارد، هنگام انتقال به روز بعد هم کسری ندارد.</p>
   ${c.neg.on?[['move','انتقال به روز بعد'],['time','کمبود زمان'],['forgot','فراموشی'],['lazy','اهمال‌کاری']].map(r=>`<div class="wrow"><span>${r[1]}</span><select class="in" data-c="negw" data-id="${r[0]}" aria-label="کسر امتیاز ${r[1]}">${[0,.25,.5,1,1.5,2].map(w=>`<option value="${w}" ${c.neg[r[0]]===w?'selected':''}>${w===0?'بدون کسر':fp(w*PENU)+' امتیاز'}</option>`).join('')}</select></div>`).join('')+'<p class="hint" style="margin-top:8px">عددها یعنی به‌ازای هر کار چند امتیاز از نمره‌ی آن روز کم شود.</p>':''}`;
 }
 let BKP=null;
@@ -1534,6 +1564,14 @@ const A={
   tadd(){const i=$('#nt'),t=i.value.trim();if(!t)return;D(PK).tasks.push({id:uid(),t,done:false});touch(PK);render();const n=$('#nt');if(n)n.focus();},
   tdone(el){const t=D(PK).tasks.find(x=>x.id===el.dataset.id);if(t){t.done=!t.done;touch(PK);render();}},
   tmove(el){moveTask(PK,el.dataset.id,addDays(PK,1));render();toast('به '+dateLabel(addDays(PK,1))+' منتقل شد');},
+  tfu(el){const t=D(PK).tasks.find(x=>x.id===el.dataset.id);if(!t||t.done||t.moved||t.x)return;if(t.f)delete t.f;else t.f=1;touch(PK);render();toast(t.f?'پیگیری ثبت شد؛ اگر به روز بعد برود کسر امتیاز ندارد':'علامت پیگیری برداشته شد');},
+  tback(el){const r=unmoveTask(PK,el.dataset.id);render();toast(r==='ok'?'کار به این روز برگشت':r==='busy'?'این کار در روز مقصد انجام یا بسته شده؛ از همان‌جا تغییرش بده':'برگشت ممکن نشد');},
+  tbk(el){
+    const t=D(PK).tasks.find(x=>x.id===el.dataset.id),st=t&&srcOf(t,PK);
+    if(!t||!st||t.done||t.moved||t.x){toast('برگشت ممکن نشد');return;}
+    const from=t.from,r=unmoveTask(from,st.id);render();
+    toast(r==='ok'?'کار به '+dateLabel(from)+' برگشت':'برگشت ممکن نشد');
+  },
   tdel(el){const d=D(PK);d.tasks=d.tasks.filter(x=>x.id!==el.dataset.id);touch(PK);render();},
   tclose(el){
     const t=D(PK).tasks.find(x=>x.id===el.dataset.id);if(!t||t.done||t.moved||t.x)return;
@@ -1726,6 +1764,26 @@ try{fsPref=localStorage.getItem(LS+'fs')!=='0';}catch(e){}
 function fsOn(){try{const p=document.documentElement.requestFullscreen({navigationUI:'hide'});if(p&&p.catch)p.catch(function(){});}catch(e){}}
 function fsOff(){try{if(document.fullscreenElement)document.exitFullscreen();}catch(e){}}
 document.addEventListener('click',()=>{if(!fsAuto||locked)return;fsAuto=false;if(canFS&&fsPref&&!document.fullscreenElement)fsOn();},true);
+/* ---------- phone back button: close the top layer first, leave the app only from the home page ---------- */
+let trapOn=!!(history.state&&history.state.mvt),exitT=0;
+function backStep(){
+  if(locked)return false;
+  if(sheetOpen()){closeSheet();return true;}
+  if(tab==='set'){tab=prevTab;render();window.scrollTo(0,0);return true;}
+  if(tab==='goals'){if(openGoal){openGoal=null;render();return true;}tab='day';render();window.scrollTo(0,0);return true;}
+  if(tab==='day'&&SEC.day){SEC.day='';render();window.scrollTo(0,0);return true;}
+  return false;
+}
+/* one extra history entry sits above the app's first entry; pressing back lands on the first entry and we answer */
+function ensureTrap(){if(trapOn)return;try{history.pushState({mvt:1},'');trapOn=true;}catch(e){}}
+window.addEventListener('popstate',e=>{
+  if(!trapOn||(e.state&&e.state.mvt))return;
+  trapOn=false;
+  if(backStep()){ensureTrap();return;}
+  toast('برای خروج از برنامه، یک بار دیگر بازگشت را بزن');
+  clearTimeout(exitT);exitT=setTimeout(ensureTrap,2600);
+});
+document.addEventListener('click',ensureTrap,true);
 document.addEventListener('fullscreenchange',()=>{if(tab==='set'&&!sheetOpen())render();});
 
 /* ---------- events ---------- */
